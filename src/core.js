@@ -265,10 +265,7 @@ c3_chart_internal_fn.initWithData = function (data) {
     main.append("text")
         .attr("class", CLASS.text + ' ' + CLASS.empty)
         .attr("text-anchor", "middle") // horizontal centering of text at x position in all browsers.
-        .attr("dominant-baseline", "middle"); // vertical centering of text at y position in all browsers, except IE.
-
-    // Regions
-    $$.initRegion();
+        .attr("dominant-baseline", "middle"); // vertical centering of text at y position in all browsers, except IE.    
 
     // Grids
     $$.initGrid();
@@ -304,6 +301,9 @@ c3_chart_internal_fn.initWithData = function (data) {
 
     // Set targets
     $$.updateTargets($$.data.targets);
+
+    // Regions (explicitly put into the forefront for user-interaction)
+    $$.initRegion();
 
     // Draw with targets
     if (binding) {
