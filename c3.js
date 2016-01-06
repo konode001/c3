@@ -6759,7 +6759,7 @@
                     tick = g.selectAll(".tick").data(ticks, scale1),
                     tickEnter = tick.enter().insert("g", ".domain").attr("class", "tick").style("opacity", 1e-6),
                     // MEMO: No exit transition. The reason is this transition affects max tick width calculation because old tick will be included in the ticks.
-                    tickExit = tick.exit().remove(),
+                    tickExit = function () {}, // Prevents xTicks from hiding when no metrics
                     tickUpdate = transitionise(tick).style("opacity", 1),
                     tickTransform, tickX, tickY;
 
