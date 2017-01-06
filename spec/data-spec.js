@@ -23,11 +23,11 @@ describe('c3 chart data', function () {
 
         it('should draw correctly', function () {
             var expectedCx = [6, 299, 593],
-                expectedCy = [370, 390, 331];
+                expectedCy = [371, 391, 332];
             d3.selectAll('.c3-circles-data1 .c3-circle').each(function (d, i) {
                 var circle = d3.select(this);
-                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], -2);
-                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[i], -2);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[i], 0);
             });
         });
 
@@ -62,16 +62,104 @@ describe('c3 chart data', function () {
 
         it('should draw correctly', function () {
             var expectedCx = {443: [98, 294, 490], 995: [98, 294, 490]},
-                expectedCy = {443: [193, 351, 36], 995: [390, 429, 351]};
+                expectedCy = {443: [194, 351, 36], 995: [391, 430, 351]};
             d3.selectAll('.c3-circles-443 .c3-circle').each(function (d, i) {
                 var circle = d3.select(this);
-                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[443][i], -2);
-                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[443][i], -2);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[443][i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[443][i], 0);
             });
             d3.selectAll('.c3-circles-995 .c3-circle').each(function (d, i) {
                 var circle = d3.select(this);
-                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[995][i], -2);
-                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[995][i], -2);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[995][i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[995][i], 0);
+            });
+        });
+
+        it('should update nested JSON args', function () {
+            args = {
+                data: {
+                    json: [{
+                        "date": "2014-06-03",
+                        "443": "3000",
+                        "995": {"996": "500"},
+                        "112": ["600"],
+                        "223": [{"224": "100"}],
+                        "334": [[],[{"335": "300"}]],
+                        "556": {"557" : {"558" : ["1000"]}}
+                    }, {
+                        "date": "2014-06-04",
+                        "443": "1000",
+                        "112": ["700"],
+                        "223": [{"224": "200"}],
+                        "556": {"557" : {"558" : ["2000"]}}
+                    }, {
+                        "date": "2014-06-05",
+                        "995": {"996": "1000"},
+                        "112": ["800"],
+                        "223": [{"224": "300"}],
+                        "443": "5000",
+                        "334": [[],[{"335": "500"}]],
+                        "556": {"557" : {"558" : ["3000"]}}
+                    }],
+                    keys: {
+                        x: 'date',
+                        value: [ "443","995.996","112[0]","223[0].224","334[1][0].335","556.557.558[0]"]
+                    }
+                },
+                axis: {
+                    x: {
+                        type: "category"
+                    }
+                }
+            };
+            expect(true).toBeTruthy();
+        });
+
+        it('should draw nested JSON correctly', function () {
+            var expectedCx = [98, 294, 490],
+                expectedCy = {
+                    443: [181, 326, 36],
+                    995: [362, 398, 326],
+                    112: [354, 347, 340],
+                    223: [391, 383, 376],
+                    334: [376, 398, 362],
+                    556: [326, 253, 181]
+                };
+
+            d3.selectAll('.c3-circles-443 .c3-circle').each(function (d, i) {
+                var circle = d3.select(this);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[443][i], 0);
+            });
+
+            d3.selectAll('.c3-circles-995-996 .c3-circle').each(function (d, i) {
+                var circle = d3.select(this);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[995][i], 0);
+            });
+
+            d3.selectAll('.c3-circles-112-0- .c3-circle').each(function (d, i) {
+                var circle = d3.select(this);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[112][i], 0);
+            });
+
+            d3.selectAll('.c3-circles-223-0--224 .c3-circle').each(function (d, i) {
+                var circle = d3.select(this);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[223][i], 0);
+            });
+
+            d3.selectAll('.c3-circles-334-1--0--335 .c3-circle').each(function (d, i) {
+                var circle = d3.select(this);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[334][i], 0);
+            });
+
+            d3.selectAll('.c3-circles-556-557-558-0- .c3-circle').each(function (d, i) {
+                var circle = d3.select(this);
+                expect(+circle.attr('cx')).toBeCloseTo(expectedCx[i], 0);
+                expect(+circle.attr('cy')).toBeCloseTo(expectedCy[556][i], 0);
             });
         });
 
@@ -115,7 +203,7 @@ describe('c3 chart data', function () {
         });
 
         describe('normal x', function () {
- 
+
             it('should have correct number of xs for each', function () {
                 expect(Object.keys(chart.internal.data.xs).length).toBe(3);
                 expect(chart.internal.data.xs.data1.length).toBe(6);
@@ -755,7 +843,7 @@ describe('c3 chart data', function () {
 
         });
 
-        describe('with positive values and null', function () {
+        describe('with negative values and null', function () {
 
             describe('on not rotated axis', function () {
 
@@ -763,7 +851,7 @@ describe('c3 chart data', function () {
                     args = {
                         data: {
                             columns: [
-                                ['data1', -190, -200, -190, null],
+                                ['data1', -190, 0, -190, null],
                             ],
                             type: 'bar',
                             labels: {
@@ -781,13 +869,13 @@ describe('c3 chart data', function () {
 
                 it('should have y domain with proper padding', function () {
                     var domain = chart.internal.y.domain();
-                    expect(domain[0]).toBeCloseTo(-227, -1);
+                    expect(domain[0]).toBeCloseTo(-215, -1);
                     expect(domain[1]).toBeCloseTo(0, -1);
                 });
 
                 it('should locate labels above each data point', function () {
                     var texts = chart.internal.main.selectAll('.c3-texts-data1 text'),
-                        expectedYs = [368, 387, 368, 12],
+                        expectedYs = [368, 12, 368, 12],
                         expectedXs = [74, 221, 368, 515];
                     texts.each(function (d, i) {
                         var text = d3.select(this);
@@ -803,13 +891,13 @@ describe('c3 chart data', function () {
 
                 it('should have y domain with proper padding', function () {
                     var domain = chart.internal.y.domain();
-                    expect(domain[0]).toBeCloseTo(-201, -1);
-                    expect(domain[1]).toBeCloseTo(-189, -1);
+                    expect(domain[0]).toBeCloseTo(-215, -1);
+                    expect(domain[1]).toBeCloseTo(25, -1);
                 });
 
                 it('should locate labels above each data point', function () {
                     var texts = chart.internal.main.selectAll('.c3-texts-data1 text'),
-                        expectedYs = [58, 392, 58, 12],
+                        expectedYs = [395, 60, 395, 12],
                         expectedXs = [6, 198, 391, 583];
                     texts.each(function (d, i) {
                         var text = d3.select(this);
@@ -832,14 +920,14 @@ describe('c3 chart data', function () {
 
                 it('should have y domain with proper padding', function () {
                     var domain = chart.internal.y.domain();
-                    expect(domain[0]).toBeCloseTo(-232, -1);
+                    expect(domain[0]).toBeCloseTo(-220, -1);
                     expect(domain[1]).toBeCloseTo(0, -1);
                 });
 
                 it('should locate labels above each data point', function () {
                     var texts = chart.internal.main.selectAll('.c3-texts-data1 text'),
                         expectedYs = [57, 163, 269, 375],
-                        expectedXs = [103, 78, 103, 526];
+                        expectedXs = [103, 594, 103, 526];
                     texts.each(function (d, i) {
                         var text = d3.select(this);
                         expect(+text.attr('y')).toBeCloseTo(expectedYs[i], -2);
@@ -854,14 +942,14 @@ describe('c3 chart data', function () {
 
                 it('should have y domain with proper padding', function () {
                     var domain = chart.internal.y.domain();
-                    expect(domain[0]).toBeCloseTo(-202, -1);
-                    expect(domain[1]).toBeCloseTo(-188, -1);
+                    expect(domain[0]).toBeCloseTo(-220, -1);
+                    expect(domain[1]).toBeCloseTo(24, -1);
                 });
 
                 it('should locate labels above each data point', function () {
                     var texts = chart.internal.main.selectAll('.c3-texts-data1 text'),
                         expectedYs = [9, 147, 286, 424],
-                        expectedXs = [511, 67, 511, 526];
+                        expectedXs = [67, 537, 67, 526];
                     texts.each(function (d, i) {
                         var text = d3.select(this);
                         expect(+text.attr('y')).toBeCloseTo(expectedYs[i], -2);

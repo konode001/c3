@@ -202,7 +202,7 @@ c3_chart_internal_fn.generateFlow = function (args) {
                     translateX = diffDomain(domain) / 2;
                 }
             }
-        } else if (flow.orgDataCount === 1 || flowStart.x === flowEnd.x) {
+        } else if (flow.orgDataCount === 1 || (flowStart && flowStart.x) === (flowEnd && flowEnd.x)) {
             translateX = $$.x(orgDomain[0]) - $$.x(domain[0]);
         } else {
             if ($$.isTimeSeries()) {
@@ -214,9 +214,7 @@ c3_chart_internal_fn.generateFlow = function (args) {
         scaleX = (diffDomain(orgDomain) / diffDomain(domain));
         transform = 'translate(' + translateX + ',0) scale(' + scaleX + ',1)';
 
-        // hide tooltip
         $$.hideXGridFocus();
-        $$.hideTooltip();
 
         d3.transition().ease('linear').duration(durationForFlow).each(function () {
             wait.add($$.axes.x.transition().call($$.xAxis));

@@ -48,7 +48,7 @@ Axis.prototype.getXAxis = function getXAxis(scale, orient, tickFormat, tickValue
         },
         axis = c3_axis($$.d3, axisParams).scale(scale).orient(orient);
 
-    if ($$.isTimeSeries() && tickValues) {
+    if ($$.isTimeSeries() && tickValues && typeof tickValues !== "function") {
         tickValues = tickValues.map(function (v) { return $$.parseDate(v); });
     }
 
@@ -76,17 +76,16 @@ Axis.prototype.updateXAxisTickValues = function updateXAxisTickValues(targets, a
     }
     return tickValues;
 };
-Axis.prototype.getYAxis = function getYAxis(scale, orient, tickFormat, tickValues, withOuterTick, withoutTransition) {
-    var axisParams = {
-        withOuterTick: withOuterTick,
-        withoutTransition: withoutTransition,
-    },
-        $$ = this.owner,
-        d3 = $$.d3,
-        config = $$.config,
-        axis = c3_axis(d3, axisParams).scale(scale).orient(orient).tickFormat(tickFormat);
+Axis.prototype.getYAxis = function getYAxis(scale, orient, tickFormat, tickValues, withOuterTick, withoutTransition, withoutRotateTickText) {
+    var $$ = this.owner, config = $$.config,
+        axisParams = {
+            withOuterTick: withOuterTick,
+            withoutTransition: withoutTransition,
+            tickTextRotate: withoutRotateTickText ? 0 : config.axis_y_tick_rotate
+        },
+        axis = c3_axis($$.d3, axisParams).scale(scale).orient(orient).tickFormat(tickFormat);
     if ($$.isTimeSeriesY()) {
-        axis.ticks(d3.time[config.axis_y_tick_time_value], config.axis_y_tick_time_interval);
+        axis.ticks($$.d3.time[config.axis_y_tick_time_value], config.axis_y_tick_time_interval);
     } else {
         axis.tickValues(tickValues);
     }
@@ -276,10 +275,10 @@ Axis.prototype.getMaxTickWidth = function getMaxTickWidth(id, withoutRecompute) 
         targetsToShow = $$.filterTargetsToShow($$.data.targets);
         if (id === 'y') {
             scale = $$.y.copy().domain($$.getYDomain(targetsToShow, 'y'));
-            axis = this.getYAxis(scale, $$.yOrient, config.axis_y_tick_format, $$.yAxisTickValues, false, true);
+            axis = this.getYAxis(scale, $$.yOrient, config.axis_y_tick_format, $$.yAxisTickValues, false, true, true);
         } else if (id === 'y2') {
             scale = $$.y2.copy().domain($$.getYDomain(targetsToShow, 'y2'));
-            axis = this.getYAxis(scale, $$.y2Orient, config.axis_y2_tick_format, $$.y2AxisTickValues, false, true);
+            axis = this.getYAxis(scale, $$.y2Orient, config.axis_y2_tick_format, $$.y2AxisTickValues, false, true, true);
         } else {
             scale = $$.x.copy().domain($$.getXDomain(targetsToShow));
             axis = this.getXAxis(scale, $$.xOrient, $$.xAxisTickFormat, $$.xAxisTickValues, false, true, true);
@@ -321,14 +320,15 @@ Axis.prototype.updateLabels = function updateLabels(withTransition) {
         .text(this.textForY2AxisLabel.bind(this));
 };
 Axis.prototype.getPadding = function getPadding(padding, key, defaultValue, domainLength) {
-    if (!isValue(padding[key])) {
+    var p = typeof padding === 'number' ? padding : padding[key];
+    if (!isValue(p)) {
         return defaultValue;
     }
     if (padding.unit === 'ratio') {
         return padding[key] * domainLength;
     }
     // assume padding is pixels if unit is not specified
-    return this.convertPixelsToAxisPadding(padding[key], domainLength);
+    return this.convertPixelsToAxisPadding(p, domainLength);
 };
 Axis.prototype.convertPixelsToAxisPadding = function convertPixelsToAxisPadding(pixels, domainLength) {
     var $$ = this.owner,
