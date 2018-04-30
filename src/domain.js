@@ -1,3 +1,6 @@
+import { c3_chart_internal_fn } from './core';
+import { isValue, isDefined, diffDomain, notEmpty } from './util';
+
 c3_chart_internal_fn.getYDomainMin = function (targets) {
     var $$ = this, config = $$.config,
         ids = $$.mapToIds(targets), ys = $$.getValuesAsIdKeyed(targets),
@@ -207,11 +210,23 @@ c3_chart_internal_fn.updateXDomain = function (targets, withUpdateXDomain, withU
         $$.x.domain(domain ? domain : $$.d3.extent($$.getXDomain(targets)));
         $$.orgXDomain = $$.x.domain();
         if (config.zoom_enabled) { $$.zoom.scale($$.x).updateScaleExtent(); }
-        $$.subX.domain($$.x.domain());
-        if ($$.brush) { $$.brush.scale($$.subX); }
+        if ($$.subX) {
+            $$.subX.domain($$.x.domain());
+            if ($$.brush) {
+                $$.brush.scale($$.subX);
+            }
+        }
     }
     if (withUpdateXDomain) {
-        $$.x.domain(domain ? domain : (!$$.brush || $$.brush.empty()) ? $$.orgXDomain : $$.brush.extent());
+        if (!domain) {
+            if ($$.brush && !$$.brush.empty()) {
+                domain = $$.brush.extent();
+            }
+            if (!domain) {
+                domain = $$.orgXDomain;
+            }
+        }
+        $$.x.domain(domain);
         if (config.zoom_enabled) { $$.zoom.scale($$.x).updateScaleExtent(); }
     }
 

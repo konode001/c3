@@ -1,7 +1,8 @@
-c3_chart_internal_fn.getClipPath = function (id) {
-    var isIE9 = window.navigator.appVersion.toLowerCase().indexOf("msie 9.") >= 0;
-    return "url(" + (isIE9 ? "" : document.URL.split('#')[0]) + "#" + id + ")";
-};
+import { c3_chart_internal_fn } from './core';
+import { getClipPath } from './util';
+
+c3_chart_internal_fn.getClipPath = getClipPath;
+
 c3_chart_internal_fn.appendClip = function (parent, id) {
     return parent.append("clipPath").attr("id", id).append("rect");
 };

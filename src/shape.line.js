@@ -1,3 +1,7 @@
+import CLASS from './class';
+import { c3_chart_internal_fn } from './core';
+import { isValue, isFunction, isUndefined, isDefined } from './util';
+
 c3_chart_internal_fn.initLine = function () {
     var $$ = this;
     $$.main.select('.' + CLASS.chart).append("g")
@@ -368,7 +372,11 @@ c3_chart_internal_fn.pointR = function (d) {
 };
 c3_chart_internal_fn.pointExpandedR = function (d) {
     var $$ = this, config = $$.config;
-    return config.point_focus_expand_enabled ? (config.point_focus_expand_r ? config.point_focus_expand_r : $$.pointR(d) * 1.75) : $$.pointR(d);
+    if (config.point_focus_expand_enabled) {
+        return isFunction(config.point_focus_expand_r) ? config.point_focus_expand_r(d) : ((config.point_focus_expand_r) ? config.point_focus_expand_r : $$.pointR(d) * 1.75);
+    } else {
+        return $$.pointR(d);
+    }
 };
 c3_chart_internal_fn.pointSelectR = function (d) {
     var $$ = this, config = $$.config;

@@ -1,3 +1,7 @@
+import CLASS from './class';
+import { c3_chart_internal_fn } from './core';
+import { isValue, isFunction, isArray, notEmpty, hasValue } from './util';
+
 c3_chart_internal_fn.isX = function (key) {
     var $$ = this, config = $$.config;
     return (config.data_x && key === config.data_x) || (notEmpty(config.data_xs) && hasValue(config.data_xs, key));
@@ -175,13 +179,23 @@ c3_chart_internal_fn.mapTargetsToUniqueXs = function (targets) {
     return xs.sort(function (a, b) { return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN; });
 };
 c3_chart_internal_fn.addHiddenTargetIds = function (targetIds) {
-    this.hiddenTargetIds = this.hiddenTargetIds.concat(targetIds);
+    targetIds = (targetIds instanceof Array) ? targetIds : new Array(targetIds);
+    for (var i = 0; i < targetIds.length; i++) {
+        if (this.hiddenTargetIds.indexOf(targetIds[i]) < 0) {
+            this.hiddenTargetIds = this.hiddenTargetIds.concat(targetIds[i]);
+        }
+    }
 };
 c3_chart_internal_fn.removeHiddenTargetIds = function (targetIds) {
     this.hiddenTargetIds = this.hiddenTargetIds.filter(function (id) { return targetIds.indexOf(id) < 0; });
 };
 c3_chart_internal_fn.addHiddenLegendIds = function (targetIds) {
-    this.hiddenLegendIds = this.hiddenLegendIds.concat(targetIds);
+    targetIds = (targetIds instanceof Array) ? targetIds : new Array(targetIds);
+    for (var i = 0; i < targetIds.length; i++) {
+        if (this.hiddenLegendIds.indexOf(targetIds[i]) < 0) {
+            this.hiddenLegendIds = this.hiddenLegendIds.concat(targetIds[i]);
+        }
+    }
 };
 c3_chart_internal_fn.removeHiddenLegendIds = function (targetIds) {
     this.hiddenLegendIds = this.hiddenLegendIds.filter(function (id) { return targetIds.indexOf(id) < 0; });
@@ -222,18 +236,29 @@ c3_chart_internal_fn.isOrderAsc = function () {
     var config = this.config;
     return typeof(config.data_order) === 'string' && config.data_order.toLowerCase() === 'asc';
 };
-c3_chart_internal_fn.orderTargets = function (targets) {
+c3_chart_internal_fn.getOrderFunction = function() {
     var $$ = this, config = $$.config, orderAsc = $$.isOrderAsc(), orderDesc = $$.isOrderDesc();
     if (orderAsc || orderDesc) {
-        targets.sort(function (t1, t2) {
-            var reducer = function (p, c) { return p + Math.abs(c.value); };
+        var reducer = function (p, c) { return p + Math.abs(c.value); };
+        return function (t1, t2) {
             var t1Sum = t1.values.reduce(reducer, 0),
                 t2Sum = t2.values.reduce(reducer, 0);
             return orderAsc ? t2Sum - t1Sum : t1Sum - t2Sum;
-        });
+        };
     } else if (isFunction(config.data_order)) {
-        targets.sort(config.data_order);
-    } // TODO: accept name array for order
+        return config.data_order;
+    } else if (isArray(config.data_order)) {
+        var order = config.data_order;
+        return function (t1, t2) {
+            return order.indexOf(t1.id) - order.indexOf(t2.id);
+        };
+    }
+};
+c3_chart_internal_fn.orderTargets = function (targets) {
+    var fct = this.getOrderFunction();
+    if (fct) {
+        targets.sort(fct);
+    }
     return targets;
 };
 c3_chart_internal_fn.filterByX = function (targets, x) {

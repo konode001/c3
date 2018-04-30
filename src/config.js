@@ -1,3 +1,6 @@
+import { c3_chart_internal_fn } from './core';
+import { isDefined } from './util';
+
 c3_chart_internal_fn.getDefaultConfig = function () {
     var config = {
         bindto: '#chart',
@@ -113,6 +116,7 @@ c3_chart_internal_fn.getDefaultConfig = function () {
         axis_x_label: {},
         axis_y_show: true,
         axis_y_type: undefined,
+        axis_y_scale: undefined,
         axis_y_max: undefined,
         axis_y_min: undefined,
         axis_y_inverted: false,
@@ -121,13 +125,14 @@ c3_chart_internal_fn.getDefaultConfig = function () {
         axis_y_label: {},
         axis_y_tick_format: undefined,
         axis_y_tick_outer: true,
-        axis_y_tick_values: null,        
+        axis_y_tick_values: null,
         axis_y_tick_rotate: 0,
         axis_y_tick_count: undefined,
         axis_y_tick_time_value: undefined,
         axis_y_tick_time_interval: undefined,
         axis_y_padding: {},
         axis_y_default: undefined,
+        axis_y2_scale: undefined,
         axis_y2_show: false,
         axis_y2_max: undefined,
         axis_y2_min: undefined,
@@ -167,6 +172,7 @@ c3_chart_internal_fn.getDefaultConfig = function () {
         bar_width_ratio: 0.6,
         bar_width_max: undefined,
         bar_zerobased: true,
+        bar_space: 0,
         // area
         area_zerobased: true,
         area_above: false,
@@ -180,6 +186,7 @@ c3_chart_internal_fn.getDefaultConfig = function () {
         // gauge
         gauge_fullCircle: false,
         gauge_label_show: true,
+        gauge_labelLine_show: true,
         gauge_label_format: undefined,
         gauge_min: 0,
         gauge_max: 100,
@@ -187,6 +194,7 @@ c3_chart_internal_fn.getDefaultConfig = function () {
         gauge_label_extents: undefined,
         gauge_units: undefined,
         gauge_width: undefined,
+        gauge_arcs_minWidth: 5,
         gauge_expand: {},
         gauge_expand_duration: 50,
         // donut
@@ -205,6 +213,9 @@ c3_chart_internal_fn.getDefaultConfig = function () {
         // tooltip - show when mouseover on each data
         tooltip_show: true,
         tooltip_grouped: true,
+        tooltip_order: undefined,
+        tooltip_columns_enabled: false,
+        tooltip_columns_maxSize: 10,
         tooltip_format_title: undefined,
         tooltip_format_name: undefined,
         tooltip_format_value: undefined,

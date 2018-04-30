@@ -1,3 +1,8 @@
+import { c3_chart_internal_fn } from './core';
+import { isString, isEmpty } from './util';
+
+const LINE_TYPES = ['line', 'spline', 'area', 'area-spline', 'step', 'area-step'];
+
 c3_chart_internal_fn.setTargetType = function (targetIds, type) {
     var $$ = this, config = $$.config;
     $$.mapToTargetIds(targetIds).forEach(function (id) {
@@ -27,12 +32,25 @@ c3_chart_internal_fn.hasType = function (type, targets) {
     }
     return has;
 };
+c3_chart_internal_fn.hasLineType = function() {
+    if (isEmpty(this.config.data_type) && isEmpty(this.config.data_types)) {
+        return true;
+    }
+
+    return LINE_TYPES.concat([ 'scatter' ])
+            .map((type) => this.hasType(type))
+            .filter((bool) => bool)
+            .length > 0;
+};
+c3_chart_internal_fn.hasBarType = function() {
+    return this.hasType('bar');
+};
 c3_chart_internal_fn.hasArcType = function (targets) {
     return this.hasType('pie', targets) || this.hasType('donut', targets) || this.hasType('gauge', targets);
 };
 c3_chart_internal_fn.isLineType = function (d) {
     var config = this.config, id = isString(d) ? d : d.id;
-    return !config.data_types[id] || ['line', 'spline', 'area', 'area-spline', 'step', 'area-step'].indexOf(config.data_types[id]) >= 0;
+    return !config.data_types[id] || LINE_TYPES.indexOf(config.data_types[id]) >= 0;
 };
 c3_chart_internal_fn.isStepType = function (d) {
     var id = isString(d) ? d : d.id;
